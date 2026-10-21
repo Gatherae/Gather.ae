@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "Homebz",
+    "slug": "homebz",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#3B0A5C",
+    "primaryColor": "#7C3AED",
+    "plugins": [
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 160,
+          "resizeMode": "contain",
+          "backgroundColor": "#3B0A5C"
+        }
+      ]
+    ],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "ae.homebz.app",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "Homebz needs access to your photos to upload your store logo and product images.",
+        "NSCameraUsageDescription": "Homebz needs the camera to take photos of your products."
+      }
+    },
+    "android": {
+      "package": "ae.homebz.app",
+      "softwareKeyboardLayoutMode": "resize",
+      "adaptiveIcon": {
+        "backgroundColor": "#5B1F99",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}

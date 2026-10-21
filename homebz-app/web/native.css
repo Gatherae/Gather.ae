@@ -1,0 +1,6 @@
+/* Native shell: the phone mock-up frame becomes the real screen. */
+html,body{height:100%;overflow:hidden;overscroll-behavior:none}
+body{padding:0!important;display:block!important;min-height:0!important;background:var(--paper)!important;-webkit-text-size-adjust:100%;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text}
+.device{position:fixed!important;inset:0;width:100%!important;max-width:none!important;height:100%!important;border-radius:0!important;box-shadow:none!important}
+.notch{display:none!important}
