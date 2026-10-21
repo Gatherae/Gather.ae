@@ -1,0 +1,43 @@
+name: Homebz – Expo Go link
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [homebz-expo-app]
+    paths: ['homebz-app/**', '.github/workflows/homebz-expo-go.yml']
+
+concurrency:
+  group: homebz-expo-go
+  cancel-in-progress: true
+
+jobs:
+  serve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    defaults:
+      run:
+        working-directory: homebz-app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm i -g @expo/ngrok@^4.1.0
+      - name: Start Expo with tunnel
+        run: |
+          nohup npx expo start --tunnel --port 8081 > metro.log 2>&1 &
+          for i in $(seq 1 90); do
+            HOST=$(curl -s -H 'expo-platform: ios' http://localhost:8081/ | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{try{const m=JSON.parse(s);const h=m.extra.expoClient.hostUri;if(!/^(127|localhost|10\.|172\.|192\.)/.test(h))console.log(h)}catch{}})")
+            [ -n "$HOST" ] && break
+            sleep 5
+          done
+          cat metro.log
+          [ -n "$HOST" ] || { echo "Tunnel did not start"; exit 1; }
+          echo "LINK: exp://$HOST"
+          echo "## Open in Expo Go: exp://$HOST" >> "$GITHUB_STEP_SUMMARY"
+          curl -s -o /dev/null -w 'warm-up ios bundle: %{http_code}\n' "http://localhost:8081/index.bundle?platform=ios&dev=true&hot=false&lazy=true&transform.engine=hermes&transform.bytecode=1&transform.routerRoot=app&unstable_transformProfile=hermes-stable" || true
+      - name: Keep the server running
+        run: |
+          end=$((SECONDS+20400))
+          while [ $SECONDS -lt $end ]; do sleep 60; tail -n 3 metro.log; done
