@@ -11,8 +11,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: read
-  checks: write
+  contents: write
 
 jobs:
   serve:
@@ -40,6 +39,12 @@ jobs:
           [ -n "$HOST" ] || { echo "Tunnel did not start"; exit 1; }
           echo "LINK: exp://$HOST"
           echo "::notice title=Expo Go link::exp://$HOST"
+          cd "$RUNNER_TEMP" && git init -q link && cd link
+          echo "exp://$HOST" > link.txt
+          git -c user.name=github-actions -c user.email=actions@github.com checkout -q -b homebz-link
+          git add link.txt && git -c user.name=github-actions -c user.email=actions@github.com commit -qm "Expo Go link"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" homebz-link
+          cd "$GITHUB_WORKSPACE/homebz-app"
           echo "## Open in Expo Go: exp://$HOST" >> "$GITHUB_STEP_SUMMARY"
           curl -s -o /dev/null -w 'warm-up ios bundle: %{http_code}\n' "http://localhost:8081/index.bundle?platform=ios&dev=true&hot=false&lazy=true&transform.engine=hermes&transform.bytecode=1&transform.routerRoot=app&unstable_transformProfile=hermes-stable" || true
       - name: Keep the server running
