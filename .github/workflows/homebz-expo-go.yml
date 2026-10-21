@@ -10,6 +10,10 @@ concurrency:
   group: homebz-expo-go
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  checks: write
+
 jobs:
   serve:
     runs-on: ubuntu-latest
@@ -35,6 +39,7 @@ jobs:
           cat metro.log
           [ -n "$HOST" ] || { echo "Tunnel did not start"; exit 1; }
           echo "LINK: exp://$HOST"
+          echo "::notice title=Expo Go link::exp://$HOST"
           echo "## Open in Expo Go: exp://$HOST" >> "$GITHUB_STEP_SUMMARY"
           curl -s -o /dev/null -w 'warm-up ios bundle: %{http_code}\n' "http://localhost:8081/index.bundle?platform=ios&dev=true&hot=false&lazy=true&transform.engine=hermes&transform.bytecode=1&transform.routerRoot=app&unstable_transformProfile=hermes-stable" || true
       - name: Keep the server running
