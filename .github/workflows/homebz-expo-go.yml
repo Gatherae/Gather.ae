@@ -27,6 +27,8 @@ jobs:
           node-version: 22
       - run: npm ci
       - run: npm i -g @expo/ngrok@^4.1.0
+      - name: Serve anonymously (no Expo sign-in needed in Expo Go)
+        run: node -e "const f='app.json',a=require('./'+f);delete a.expo.extra;require('fs').writeFileSync(f,JSON.stringify(a,null,2))"
       - name: Start Expo with tunnel
         run: |
           nohup npx expo start --tunnel --port 8081 > metro.log 2>&1 &
