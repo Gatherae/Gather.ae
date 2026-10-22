@@ -21,11 +21,18 @@ jobs:
         with:
           node-version: 22
       - run: npm ci
+      - name: Probe Snack runtimes
+        run: |
+          for v in 52 53 54 55 56 57 58; do for p in ios android; do
+            c=$(curl -s -o /dev/null -w '%{http_code}' -H "expo-platform: $p" -H "expo-runtime-version: exposdk:$v.0.0" -H 'expo-channel-name: production' -H 'accept: multipart/mixed,application/expo+json,application/json' "https://u.expo.dev/933fd9c0-1666-11e7-afca-d980795c5824?runtime-version=exposdk:$v.0.0&channel-name=production")
+            echo "SDK $v $p: $c" | tee -a probe.txt
+          done; done
       - run: node scripts/save-snack.js 57.0.0
       - name: Publish link
         if: always()
         run: |
           [ -f snack-link.txt ] || echo "FAILED" > snack-link.txt
+          cat probe.txt >> snack-link.txt || true
           cp snack-link.txt "$RUNNER_TEMP/snack-link.txt"
           cd "$RUNNER_TEMP" && rm -rf link && git init -q link && cd link
           cp ../snack-link.txt .
