@@ -1,0 +1,34 @@
+name: Homebz – Snack link
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [homebz-expo-app]
+    paths: ['homebz-app/snack/**', 'homebz-app/scripts/save-snack.js', '.github/workflows/homebz-snack.yml']
+
+permissions:
+  contents: write
+
+jobs:
+  save:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: homebz-app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: node scripts/save-snack.js 57.0.0
+      - name: Publish link
+        if: always()
+        run: |
+          [ -f snack-link.txt ] || echo "FAILED" > snack-link.txt
+          cp snack-link.txt "$RUNNER_TEMP/snack-link.txt"
+          cd "$RUNNER_TEMP" && rm -rf link && git init -q link && cd link
+          cp ../snack-link.txt .
+          git checkout -q -b homebz-snack-link
+          git add snack-link.txt && git -c user.name=github-actions -c user.email=actions@github.com commit -qm "Snack link"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" homebz-snack-link
