@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches: [homebz-expo-app]
-    paths: ['homebz-app/snack/**', 'homebz-app/scripts/save-snack.js', '.github/workflows/homebz-snack.yml']
+    paths: ['homebz-app/web-app/**', 'homebz-app/snack/**', 'homebz-app/scripts/save-snack.js', '.github/workflows/homebz-snack.yml']
 
 permissions:
   contents: write
@@ -28,6 +28,12 @@ jobs:
             echo "SDK $v $p: $c" | tee -a probe.txt
           done; done
       - run: node scripts/save-snack.js 57.0.0
+      - name: Probe web app hosting
+        if: always()
+        run: |
+          for u in "https://rawcdn.githack.com/Gatherae/Gather.ae/${{ github.sha }}/homebz-app/web-app/index.html" "https://raw.githack.com/Gatherae/Gather.ae/homebz-expo-app/homebz-app/web-app/index.html" "https://rawcdn.githack.com/Gatherae/Gather.ae/${{ github.sha }}/homebz-app/web-app/icon.png"; do
+            echo "WEB $(curl -s -o /dev/null -L -w '%{http_code} %{content_type} %{size_download}' "$u") $u" | tee -a probe.txt
+          done
       - name: Publish link
         if: always()
         run: |
